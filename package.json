@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/regular/tre-cli-apps#readme",
   "dependencies": {
-    "browserify": "^16.5.1",
+    "browserify": "^16.5.2",
     "human-time": "0.0.2",
     "indexhtmlify": "^2.0.0",
     "metadataify": "^2.0.0",
@@ -30,8 +30,11 @@
     "pull-file": "^1.1.0",
     "pull-stream": "^3.6.14",
     "read-pkg-up": "^7.0.1",
-    "ssb-keys": "^7.2.2",
+    "ssb-keys": "^8.0.0",
+    "ssb-ref": "^2.14.2",
     "stream-to-pull-stream": "^1.7.3",
-    "tre-cli-client": "^1.2.0"
+    "tre-cli-client": "^1.2.0",
+    "tre-compile": "^1.2.0",
+    "tre-invite-code": "^1.1.0"
   }
 }

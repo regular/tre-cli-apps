@@ -1,25 +1,14 @@
 #!/usr/bin/env node
 const pull = require('pull-stream')
 const client = require('tre-cli-client')
-const htime = require('human-time')
 const apps = require('../lib/apps')
+const printApp = require('../lib/print-app')
 
 client( (err, ssb) => {
   bail(err)
   pull(
     apps(ssb),
-    pull.drain(app=>{
-      const {revision, revRoot} = app
-      const {name, author, timestamp} = app
-      const {branch, commit} = app.git
-      console.error([
-      `${revRoot}:${revision}`,
-      `"${name}" by ${author}, deployed ${htime(new Date(timestamp))}`,
-      `git branch: ${branch}, commit: ${commit}`,
-      ''
-      ].join('\n'))
-      
-    }, err=>{
+    pull.drain(printApp, err=>{
       bail(err)
       ssb.close()
     })
