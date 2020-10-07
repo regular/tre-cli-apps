@@ -13,10 +13,12 @@ const client = require('tre-cli-client')
 
 const multicb = require('multicb')
 const readPkg = require('read-pkg-up').sync
-const Browserify = require('browserify')
+//const Browserify = require('browserify')
 const htime = require('human-time')
-const indexhtmlify = require('indexhtmlify')
-const metadataify = require('metadataify')
+//const indexhtmlify = require('indexhtmlify')
+//const metadataify = require('metadataify')
+const compile = require('tre-compile/compile.js')
+const addMeta = require('tre-compile/add-meta')
 
 const getRemote = require('./lib/get-remote')
 const uploadBlobs = require('./lib/upload-blobs')
@@ -100,18 +102,28 @@ isClean(sourcePath, (err, clean) => {
     function bail(err) {
       if (!err) return
       console.error(err.message)
-      ssb.close()
+      if (ssb) ssb.close()
       process.exit(1)
     }
   })
 })
 
+function compileStream(sourceFile, opts) {
+}
+
+/*
 function compile(sourceFile, opts) {
   debug('compiling ...')
   const browserify = Browserify()
   browserify.add(sourceFile)
+  const bundle = browserify.bundle()
+  bundle.on('error', err=>{
+    console.error('borwserify.bundle failed', err.message)
+    console.error(err.annotated)
+    process.exit(-1)
+  })
   const source = pull(
-    toPull.source(browserify.bundle()),
+    toPull.source(bundle),
     pull.through(b => {
       opts.updateHash(b)
     }),
@@ -120,6 +132,7 @@ function compile(sourceFile, opts) {
   )
   return source
 }
+*/
 
 /*
 function upload(conf, keys, path, cb) {
@@ -280,20 +293,21 @@ function makeSourceBlob(argv, sourceFile, pkg, conf, keys, remote, cb) {
       scriptHash: argv.hash
     })
   } else {
-    const scriptHash = crypto.createHash('sha256')
-    const updateHash = b => {
-      scriptHash.update(b)
-    }
-    const source = compile(sourceFile, Object.assign({updateHash}, pkg, argv))
-    uploadBlobs([source], conf, keys, remote, (err, hashes) => {
-      if (err) {
-        debug(`Uploading to ${remote} failed.`)
-        return cb(err)
-      }
-      debug(`done uploading webapp to ${remote}`)
-      cb(null, {
-        blobHash: hashes[0],
-        scriptHash: scriptHash.digest('base64')
+    compile(sourceFile, (err, result) =>{
+      if (err) return cb(err)
+      const {sha, body} = result
+      const source = addMeta(body, sha, pkg)
+      //const source = pull.values([body])
+      uploadBlobs([source], conf, keys, remote, (err, hashes) => {
+        if (err) {
+          debug(`Uploading to ${remote} failed.`)
+          return cb(err)
+        }
+        debug(`done uploading webapp to ${remote}`)
+        cb(null, {
+          blobHash: hashes[0],
+          scriptHash: sha
+        })
       })
     })
   }
