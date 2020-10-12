@@ -293,7 +293,7 @@ function makeSourceBlob(argv, sourceFile, pkg, conf, keys, remote, cb) {
       scriptHash: argv.hash
     })
   } else {
-    process.chdir(sourcePath)
+    //process.chdir(sourcePath)
     compile(sourceFile, {basedir: sourcePath}, (err, result) =>{
       if (err) return cb(err)
       const {sha, body} = result
