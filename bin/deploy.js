@@ -13,15 +13,12 @@ const client = require('tre-cli-client')
 
 const multicb = require('multicb')
 const readPkg = require('read-pkg-up').sync
-//const Browserify = require('browserify')
 const htime = require('human-time')
-//const indexhtmlify = require('indexhtmlify')
-//const metadataify = require('metadataify')
 const compile = require('tre-compile/compile.js')
 const addMeta = require('tre-compile/add-meta')
 
-const getRemote = require('./lib/get-remote')
-const uploadBlobs = require('./lib/upload-blobs')
+const getRemote = require('../lib/get-remote')
+const uploadBlobs = require('../lib/upload-blobs')
 
 const argv = require('minimist')(process.argv.slice(2))
 
@@ -107,49 +104,6 @@ isClean(sourcePath, (err, clean) => {
     }
   })
 })
-
-function compileStream(sourceFile, opts) {
-}
-
-/*
-function compile(sourceFile, opts) {
-  debug('compiling ...')
-  const browserify = Browserify()
-  browserify.add(sourceFile)
-  const bundle = browserify.bundle()
-  bundle.on('error', err=>{
-    console.error('borwserify.bundle failed', err.message)
-    console.error(err.annotated)
-    process.exit(-1)
-  })
-  const source = pull(
-    toPull.source(bundle),
-    pull.through(b => {
-      opts.updateHash(b)
-    }),
-    toPull.transform(indexhtmlify(opts)),
-    toPull.transform(metadataify(opts))
-  )
-  return source
-}
-*/
-
-/*
-function upload(conf, keys, path, cb) {
-  ssbClient(keys, Object.assign({},
-    conf, { manifest: {blobs: {add: 'sink'}} }
-  ), (err, ssb) => {
-    if (err) return cb(err)
-    pull(
-      file(path),
-      ssb.blobs.add( (err, hash) =>{
-        ssb.close()
-        cb(err, hash)
-      })
-    )
-  })
-}
-*/
 
 function publish(ssb, keys, path, content, cb) {
   const webapps = []
@@ -293,7 +247,6 @@ function makeSourceBlob(argv, sourceFile, pkg, conf, keys, remote, cb) {
       scriptHash: argv.hash
     })
   } else {
-    //process.chdir(sourcePath)
     compile(sourceFile, {basedir: sourcePath}, (err, result) =>{
       if (err) return cb(err)
       const {sha, body} = result
