@@ -1,6 +1,6 @@
 const {spawn} = require('child_process')
 const minimist = require('minimist')
-const debug = require('debug')('tre-cli')
+const debug = require('debug')('tre-cli-apps')
 
 const COMMANDS = {
   'deploy': {bin: 'deploy.js', desc: 'deploy a bundled webapp to an ssb network'},
@@ -10,6 +10,7 @@ const COMMANDS = {
 
 module.exports = function(args, cerr, cb) {
   const argv = minimist(args)
+  debug('parsed argv %o', argv)
   const bin = argv['run-by-tre-cli'] ? 'tre apps' : 'tre-cli-apps'
   if (argv.help || !argv._.length) {
     if (argv.help) {
@@ -21,13 +22,13 @@ module.exports = function(args, cerr, cb) {
     }
 
     if (parsed.version) return version(cb)
-
-    const command = COMMANDS[argv[0]]
-    if (!command) {
-      return cb(new Error(`Unknown sub-command: ${argv[0]}`))
-    }
-    return runCommand(command.bin, argv.slice(1), cb)
   }
+
+  const command = COMMANDS[args[0]]
+  if (!command) {
+    return cb(new Error(`Unknown sub-command: ${argv[0]}`))
+  }
+  runCommand(command.bin, args.slice(1), cb)
 
   function version(cb) {
     cerr(`tre-cli-apps ${require(__dirname + '/package.json').version}`)
