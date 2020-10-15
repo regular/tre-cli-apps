@@ -5,19 +5,21 @@ const apps = require('../lib/apps')
 const printApp = require('../lib/print-app')
 
 client( (err, ssb) => {
-  bail(err)
+  if (err) return exit(err)
   pull(
     apps(ssb),
     pull.drain(printApp, err=>{
-      bail(err)
-      ssb.close()
+      if (err) return exit(err)
+      ssb.close( ()=>{
+        process.exit(0)
+      })
     })
   )
 
-  function bail(err) {
-    if (!err) return
-    if (ssb) ssb.close()
+  function exitl(err) {
     console.error(err.message)
-    process.exit(1)
+    if (ssb) ssb.close( ()=>{
+      process.exit(1)
+    }); else process.exit(1)
   }
 })

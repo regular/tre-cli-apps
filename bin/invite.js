@@ -15,16 +15,16 @@ const autoname = argv.name
 const count = argv.count || 1
 
 client( (err, ssb, conf, keys) =>{
-  bail(err)
+  if (err) return exit(err)
   const remote = getRemote(conf)
   console.error(`remote is ${remote}`)
   pickkApp( (err, app) => {
-    bail(err)
+    if (err) return exit(err)
     printApp(app)
     console.error(`count: ${count}`)
     console.error(`autoname: ${autoname || '[none]'}`)
     getInviteCode(conf, keys, remote, count, (err, code) => {
-      bail(err)
+      if (err) return exit(err)
       format(code, app)
       ssb.close()
     })
@@ -48,16 +48,16 @@ client( (err, ssb, conf, keys) =>{
     }
   }
 
-  function bail(err) {
-    if (!err) return
+  function exit(err) {
     console.error(err.message)
-    if (ssb) ssb.close()
-    process.exit(1)
+    if (ssb) ssb.close( ()=>{
+      process.exit(1)
+    }); else process.exit(1)
   }
 
   function listApps() {
     pull(apps(ssb), pull.drain(printApp, err=>{
-      bail(err)
+      if (err) return exit(err)
     }))
   }
 
@@ -65,7 +65,7 @@ client( (err, ssb, conf, keys) =>{
     let webapp = argv.webapp
 
     pull(apps(ssb), pull.collect( (err, apps) =>{
-      bail(err)
+      if (err) return exit(err)
       if (!apps.length) {
         return cb(new Error('No wenapps found.'))
       }

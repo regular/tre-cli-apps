@@ -18,12 +18,12 @@ const argv = require('minimist')(process.argv.slice(2))
 const {dryRun} = argv
 
 client( (err, ssb, conf, keys) =>{
-  bail(err)
+  if (err) return exit(err)
   const remote = getRemote(conf)
   console.error(`remote is ${remote}`)
 
   uploadHTMLBlob(argv, conf, keys, remote, (err, result) => {
-    bail(err)
+    if (err) return exit(err)
     const {meta, blobHash} = result
     const content = Object.assign({},
       getBasicProps(meta, conf),
@@ -35,17 +35,18 @@ client( (err, ssb, conf, keys) =>{
     )
     
     publish(ssb, keys, content, (err, kv) => {
-      bail(err)
+      if (err) return exit(err)
       console.log(JSON.stringify(kv, null, 2))
       ssb.close()
     })
   })
 
-  function bail(err) {
+  function exit(err) {
     if (!err) return
     console.error(err.message)
-    if (ssb) ssb.close()
-    process.exit(1)
+    if (ssb) ssb.close( ()=>{
+      process.exit(1)
+    }); else process.exit(1)
   }
 })
 
