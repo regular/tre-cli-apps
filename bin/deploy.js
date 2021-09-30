@@ -84,10 +84,12 @@ function publish(ssb, keys, content, cb) {
           }
         }
       }
-
-      content.revisionBranch = webapp.key
-      content.revisionRoot = revisionRoot(webapp)
-      console.error('Updating existing webapp', content.revisionRoot.substr(0, 5))
+      
+      if (!argv.first) {
+        console.error('Updating existing webapp', content.revisionRoot.substr(0, 5))
+        content.revisionBranch = webapp.key
+        content.revisionRoot = revisionRoot(webapp)
+      }
 
       if (dryRun) {
         console.error('Would publish:')
