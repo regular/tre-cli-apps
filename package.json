@@ -1,6 +1,6 @@
 {
   "name": "tre-cli-apps",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "description": "webapp related cli tools for tre",
   "main": "index.js",
   "bin": {
