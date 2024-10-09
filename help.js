@@ -8,6 +8,7 @@ DESCRIPTION
 ${bin} list lists all messages of type 'webapp' that can be found on the network defined by the config file .trerc (or, if --config is used, some other config file). A server must be running for this to work.
 
 ${bin} deploy either uploads a new version of an existing webapp, or publishes a new one. To update, you need to specify the revisionRoot (original message id) of an existing webapp with --revRoot MSGID. To publish an entirely new webapp, you need to use --first. ${bin} deplay reads a bundled application (the output of tre-compile) from STDIN.
+Use --name and --description as overrides for the meta data stored in the compiled webapp's <HEAD> tag.
 
 ${bin} invite creates an invite code for a deployed application. tre invite codes contain a traditional ssb pub invite and additional information: what app to open, what feed to follow and what name to use. If such an invite code is used in Bay of Plenty, the invited person will automatically follow the feed that created the invite (per default defined by .tre/secret) in addition to the pub that generated the invite code. He invitee will then be redirected to the webapp specified in the invite code (use --webapp to pick the app). if --name is used, the invited person will post an about message with the given name. Bay of Plenty only understands invite codes in the --compact format, the defailt output format is JSON.
 

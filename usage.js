@@ -10,6 +10,8 @@ module.exports = bin =>
   '--revRoot MSGID|--first ' +
   '[--dryRun] ' +
   '[--remote MULTISERVER_ADDRESS] ' +
+  '[--name NAME] ' +
+  '[--descroption DESCRIPTION] ' +
   '[--config CONFIG] ' +
   '\n' +
 
