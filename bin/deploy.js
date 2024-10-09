@@ -27,6 +27,10 @@ client( (err, ssb, conf, keys) =>{
     const {meta, blobHash} = result
     const content = Object.assign({},
       getBasicProps(meta, conf),
+      {
+        name: argv.name,
+        description: argv.description
+      },
       {config: {tre: conf.tre}},
       {
         codeBlob: blobHash,
@@ -66,26 +70,25 @@ function publish(ssb, keys, content, cb) {
       webapps.push(e.value) // kv
     }, err => {
       if (err) return cb(err)
-      let webapp
-      if (webapps.length) {
-        if (!argv.revRoot) {
+
+      if (!argv.first) {
+        let webapp
+        if (webapps.length) {
+          if (!argv.revRoot) {
+            webapp = findWebapp(keys.id, webapps, content)
+            return cb(Error(`Please specify --revRoot to pick an application to update. Suggested: --revRoot "${webapp && revisionRoot(webapp).slice(0,6)}"`))
+          } else {
+            webapp = webapps.find( kv=>revisionRoot(kv).startsWith(argv.revRoot))
+            if (!webapp) return cb(new Error(`webapp not found: ${argv.revRoot}`))
+          }
+        } else { // just one existing webapp
           webapp = findWebapp(keys.id, webapps, content)
-          return cb(Error(`Please specify --revRoot to pick an application to update. Suggested: --revRoot "${webapp && revisionRoot(webapp).slice(0,6)}"`))
-        } else {
-          webapp = webapps.find( kv=>revisionRoot(kv).startsWith(argv.revRoot))
-          if (!webapp) return cb(new Error(`webapp not found: ${argv.revRoot}`))
-        }
-      } else { // just one existing webapp
-        webapp = findWebapp(keys.id, webapps, content)
-        if (!webapp) {
-          console.error('First deployment of this webapp')
-          if (!argv.first) {
+          if (!webapp) {
+            console.error('First deployment of this webapp')
             return cb(new Error('specify --first if you want this to happen'))
           }
         }
-      }
-      
-      if (!argv.first) {
+
         console.error('Updating existing webapp', content.revisionRoot.substr(0, 5))
         content.revisionBranch = webapp.key
         content.revisionRoot = revisionRoot(webapp)
