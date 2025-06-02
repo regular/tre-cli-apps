@@ -14,6 +14,7 @@ const getRemote = require('../lib/get-remote')
 const uploadBlobs = require('../lib/upload-blobs')
 
 const argv = require('minimist')(process.argv.slice(2))
+debug('argv: %O', argv)
 
 const {dryRun} = argv
 
@@ -27,21 +28,25 @@ client( (err, ssb, conf, keys) =>{
     const {meta, blobHash} = result
     const content = Object.assign({},
       getBasicProps(meta, conf),
+      /* NOTE: if the key exists, the value will be overwritten even when the value is `undefined`!
       {
         name: argv.name,
         description: argv.description
       },
+      */
       {config: {tre: conf.tre}},
       {
         codeBlob: blobHash,
         scriptHash: getScriptHashFromHTTPHeader(meta.http)
       }
     )
+    if (argv.name) content.name = argv.name
+    if (argv.description) content.description = argv.description
     
     publish(ssb, keys, content, (err, kv) => {
       if (err) return exit(err)
       console.log(JSON.stringify(kv, null, 2))
-      ssb.close()
+      ssb.close(()=>{})
     })
   })
 
@@ -97,7 +102,7 @@ function publish(ssb, keys, content, cb) {
 
       if (dryRun) {
         console.error('Would publish:')
-        return cb(null, {value: content})
+        return cb(null, {key: 'no key', value: content})
       }
       
       ssb.publish(content, (err, kv) => {
@@ -138,7 +143,7 @@ function revisionRoot(kv) {
 function getBasicProps(meta, conf) {
   const mtre = (meta.namespaced && meta.namespaced.tre) || {}
   const {name, description, keywords, author, generator} = meta
-  return {
+  const ret = {
     type: 'webapp',
     name,
     author,
@@ -154,6 +159,8 @@ function getBasicProps(meta, conf) {
     root: conf.tre.branches.root,
     branch: conf.tre.branches.webapps
   }
+  debug('getBasicProps returns %O', ret)
+  return ret
 }
 
 function uploadHTMLBlob(argv, conf, keys, remote, cb) {
