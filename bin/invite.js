@@ -100,6 +100,7 @@ function getInviteCode(conf, keys, remote, count, cb) {
     if (err) return cb(err)
     ssb.invite.create(count, (err, code) => {
       ssb.close()
+      if (err) console.error(`ssb.invite: server replies: ${err.message}`)
       cb(err, code)
     })
   })
