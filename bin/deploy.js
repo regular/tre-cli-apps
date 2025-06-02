@@ -89,9 +89,10 @@ function publish(ssb, keys, content, cb) {
           }
         }
 
-        console.error('Updating existing webapp', content.revisionRoot.substr(0, 5))
+        debug('Will update %O', webapp)
         content.revisionBranch = webapp.key
         content.revisionRoot = revisionRoot(webapp)
+        console.error('Updating existing webapp', content.revisionRoot.substr(0, 5))
       }
 
       if (dryRun) {
